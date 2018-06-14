@@ -7,7 +7,7 @@ RSpec.describe Scheduler do
   describe '#book' do
     let(:shift_start) { Time.zone.now }
     let(:shift_end)   { shift_start + 7.hours }
-    let(:shift)       { shift_start..shift_end }
+    let(:shift)       { build(:shift, slot: shift_start..shift_end) }
 
     let(:employee) { create(:employee) }
 
@@ -37,12 +37,14 @@ RSpec.describe Scheduler do
         create(:shift, slot: shift_start..shift_end, employee: employee, establishment: establishment)
       end
 
-      it do
-        expect {
-          subject.book(employee, shift)
-          # expect().to be false
-        }.to_not change { Shift.count }
+      it { expect { subject.book(employee, shift).to_not change { Shift.count } } }
 
+      context 'has an error message' do
+        before do
+          subject.book(employee, shift)
+        end
+
+        it { expect(shift.errors.full_messages_for(:slot)).to eq(['Slot has already been alocated']) }
       end
     end
   end

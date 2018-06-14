@@ -17,21 +17,24 @@ RSpec.describe Employee, type: :model do
 
     let!(:weekly_shift_one) do
       create(:shift,
-             slot: 7.hours.ago..Time.zone.now,
+             :monday,
              employee: subject,
              establishment: establishment
             )
     end
+
     let!(:weekly_shift_two) do
       create(:shift,
-             slot: 3.hours.ago..Time.zone.now,
+             :tuesday,
              employee: subject,
              establishment: establishment)
     end
+
     before do
       subject.reload
     end
 
-    it { expect(subject.weekly_worked_hours_count).to eq(10.hours.to_i) }
+    let(:eight_hours_shift) {  8.hours.to_i }
+    it { expect(subject.weekly_worked_hours_count).to eq(eight_hours_shift * 2) }
   end
 end

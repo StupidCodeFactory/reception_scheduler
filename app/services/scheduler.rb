@@ -6,8 +6,9 @@ class Scheduler
     self.establishment = establishment
   end
 
-  def book(employee, time_range)
-    shift = establishment.shifts.new(employee: employee, slot: time_range)
+  def book(employee, shift)
+    shift.assign_attributes(employee: employee, establishment: establishment)
+
     return false unless shift.valid?
     return false if employee_would_be_over_capacity?(employee, shift)
 
