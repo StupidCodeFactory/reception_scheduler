@@ -9,6 +9,8 @@ class Scheduler
   def book(employee, shift)
     return false unless shift.valid?
     return false if employee_would_be_over_capacity?(employee, shift)
+
+    establishment.shifts.create(employee: employee)
   end
 
   private
