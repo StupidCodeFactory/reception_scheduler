@@ -5,11 +5,12 @@ RSpec.describe Scheduler do
   subject { described_class.new(establishment) }
 
   describe '#book' do
+    let(:shift_start) { Time.zone.now }
+    let(:shift_end)   { shift_start + 7.hours }
+    let(:shift)       { shift_start..shift_end }
 
-    let(:shift)    { double('shift', 'valid?': shift_validity, duration: shift_duration) }
-    let(:shift_duration) { 6.hours }
+    let(:employee) { create(:employee) }
 
-    let(:employee) { double('employee', total_time_worked: total_time_worked) }
     let(:total_time_worked) { 0.hours }
 
     context 'when the shift is free' do
@@ -20,7 +21,11 @@ RSpec.describe Scheduler do
       end
 
       context 'when the employee has not reached is working hours capacity' do
-        let(:total_time_worked) { 40.hours }
+        before do
+          %i[ monday tuesday wednesday thursday friday ].each do |day|
+            create(:shift, day, employee: employee, establishment: establishment)
+          end
+        end
 
         it { expect(subject.book(employee, shift)).to be false }
       end
@@ -28,8 +33,17 @@ RSpec.describe Scheduler do
 
     context 'when the shift is not free' do
       let(:shift_validity) { false }
+      before do
+        create(:shift, slot: shift_start..shift_end, employee: employee, establishment: establishment)
+      end
 
-      it { expect(subject.book(employee, shift)).to be false }
+      it do
+        expect {
+          subject.book(employee, shift)
+          # expect().to be false
+        }.to_not change { Shift.count }
+
+      end
     end
   end
 end
