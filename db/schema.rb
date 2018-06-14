@@ -10,16 +10,35 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_06_14_163334) do
+ActiveRecord::Schema.define(version: 2018_06_14_174924) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "employees", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_employees_on_name", unique: true
+  end
 
   create_table "establishments", force: :cascade do |t|
     t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["name"], name: "index_establishments_on_name", unique: true
+    t.index ["name"], name: "index_establishments_on_name"
   end
 
+  create_table "shifts", force: :cascade do |t|
+    t.tstzrange "slot", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "establishment_id"
+    t.bigint "employee_id"
+    t.index ["employee_id"], name: "index_shifts_on_employee_id"
+    t.index ["establishment_id"], name: "index_shifts_on_establishment_id"
+  end
+
+  add_foreign_key "shifts", "employees"
+  add_foreign_key "shifts", "establishments"
 end
